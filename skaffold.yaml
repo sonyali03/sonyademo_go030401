@@ -1,0 +1,30 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  artifacts:
+  - image: changeme
+    context: .
+    docker: {}
+  tagPolicy:
+    envTemplate:
+      template: '{{.DOCKER_REGISTRY}}/sonyali03/sonyademo-go030401:{{.VERSION}}'
+  local: {}
+deploy:
+  kubectl: {}
+profiles:
+- name: dev
+  build:
+    artifacts:
+    - docker: {}
+    tagPolicy:
+      envTemplate:
+        template: '{{.DOCKER_REGISTRY}}/sonyali03/sonyademo-go030401:{{.DIGEST_HEX}}'
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: sonyademo-go030401
+        chartPath: charts/sonyademo-go030401
+        setValueTemplates:
+          image.repository: '{{.DOCKER_REGISTRY}}/sonyali03/sonyademo-go030401'
+          image.tag: '{{.DIGEST_HEX}}'
